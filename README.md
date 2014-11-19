@@ -25,12 +25,12 @@ We need a supervised Table Manager gen_server. When it is launched first time, i
 
 From etsserver.erl
 ```Erlang
-	handle_call({new_table,TableName}, _From, State) ->
-		case dets:open_file(?ETSDB) of
-			{ok,DETSTable} ->
-				case dets:lookup(DETSTable, TableName) of
-					[] -> % table is not yet alive so let us create it
-						TId = ets:new(TableName, [bag,{heir,self(),TableName}]),
+handle_call({new_table,TableName}, _From, State) ->
+	case dets:open_file(?ETSDB) of
+		{ok,DETSTable} ->
+			case dets:lookup(DETSTable, TableName) of
+				[] -> % table is not yet alive so let us create it
+					TId = ets:new(TableName, [bag,{heir,self(),TableName}]),
 					ETSWorker = {TableName,{etshandler,start_link,[TableName]},
 					  			 permanent,2000,worker,[etshandler]},
 					case supervisor:start_child(multiserver_sup, ETSWorker) of
@@ -67,8 +67,7 @@ From etsserver.erl
 			Reply2= false
 	end,
 	{reply, Reply2, State}
-	;
-
+;
 ```
 #When Table Manager dies.
 
