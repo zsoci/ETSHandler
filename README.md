@@ -11,6 +11,10 @@ And he is right. Anyway likelihood is low means it can happen.
 
 For experiment and playing around with ETS tables, there is a way to make this likelihood even lower. The code handles basic ETS operations, store, load and delete. Can be further developed as you wish.
 
+#Limitations
+
+This is an example project, does not implement all ets features. The tables are bag type with protected access. If you need to expand the capabilities, like passing ets options when creating a new table or adding more ets functions, you are free to contribute.
+
 #The idea
 
 The goal is not to lose ETS table as long as the node is alive. Having a process owning the table is a scenario where we can lose the table when that process dies for any reason, even if a supervisor restarts it, ETS is gone.
@@ -260,4 +264,8 @@ If you analyze the output, you will find out, the code works as planned.
 
 ===========
 Improvements and feedbacks are welcome.
+
+#Acknowledgements
+Thanks to Steve Vinoski for the base idea and comments on the limitations.
+Thanks to Csaba Hoch for the initial idea to use ets tables for dynamically generated process names instead of atoms.
 
