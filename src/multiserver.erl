@@ -58,11 +58,6 @@ init([]) ->
 	Timeout :: non_neg_integer() | infinity,
 	Reason :: term().
 %% ====================================================================
-handle_call(getwebserverpid, _From, State) ->
-    {reply, get(httpserverpid), State}
-;
-
-
 
 handle_call(Request, From, State) ->
 	?LOGFORMAT(error,"Got an unmached call request from PID:~p. Request=~p\n",[From,Request]),

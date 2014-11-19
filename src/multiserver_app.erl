@@ -10,10 +10,8 @@
 %% API functions
 %% ====================================================================
 -export([multiserver_start/0]).
-%% -include("multiserver.hrl"). 
-%% -include("../../logger/include/logger.hrl").
--define (LOGFORMAT(_Level,Format,Args),io:format(Format,Args)).
 
+-define (LOGFORMAT(_Level,Format,Args),io:format(Format,Args)).
 
 multiserver_start() -> application:start(multiserver).
 
@@ -30,22 +28,13 @@ multiserver_start() -> application:start(multiserver).
 	| {error, Reason :: term()}.
 %% ====================================================================
 start(_Type, StartArgs) ->
-%% 	case net_kernel:connect_node(utils:get_env(logserver)) of
-%% 		true ->
-%% 			global:sync(),
-%% 			logserver:clearlog(),
-%% %			logserver:register(?LOGNAME, lists:append([utils:get_env(logpath),utils:get_env(logfilename)]),utils:get_env(loglevels)),
-			etsserver:initdb(),
-			case multiserver_sup:start_link(StartArgs) of
-				{ok, Pid} ->
-					{ok, Pid};
-				Error ->
-					{error,Error}
-			end
-%% 		A -> 
-%% %%			?LOGFORMAT(error,"Log server cannot be connected:~p",[A]),
-%% 			{error,nologserver}
-%% 	end
+	etsserver:initdb(),
+	case multiserver_sup:start_link(StartArgs) of
+		{ok, Pid} ->
+			{ok, Pid};
+		Error ->
+			{error,Error}
+	end
 .
 %% stop/1
 %% ====================================================================
@@ -53,8 +42,8 @@ start(_Type, StartArgs) ->
 -spec stop(State :: term()) ->  Any :: term().
 %% ====================================================================
 stop(_State) ->
-%	application:stop(inets),
-    ok.
+    ok
+.
 
 %% ====================================================================
 %% Internal functions

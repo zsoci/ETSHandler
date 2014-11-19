@@ -1,10 +1,10 @@
-{application, ETSApp,
- [{description,"Application for testing ever living ETS tables"},
+{application, multiserver,
+ [{description,"Main application for testing ETSServer"},
   {vsn, "1.0"},
-  {modules, [etsapp_app,etsapp_sup]},
-  {registered, [etsapp_app]},
+  {modules, [multiserver_app,multiserver_sup]},
+  {registered, [multiserver_app]},
   {applications,[kernel,stdlib]},
-  {mod,{etsapp_app,[]}},
+  {mod,{multiserver_app,[]}},
   {start_phases,[]}
  ]
 }.

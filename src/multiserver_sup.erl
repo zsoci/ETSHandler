@@ -51,36 +51,11 @@ start_link(Args) ->
 	Modules :: [module()] | dynamic.
 %% ====================================================================
 init([]) ->
-%	case setupserver() of
-%		ok -> 
-			MainServer = {multiserver,{multiserver,start_link,[]},
-					  	permanent,2000,worker,[multiserver]},
-			{ok,{{one_for_one,3,10}, [MainServer]}}
-%		_ -> ignore
-%	end 
+	MainServer = {multiserver,{multiserver,start_link,[]},
+				  permanent,2000,worker,[multiserver]},
+	{ok,{{one_for_one,3,10}, [MainServer]}}
 .
+
 %% ====================================================================
 %% Internal functions
 %% ====================================================================
-
-setupserver() ->
-%			application:start(inets),
-			inets:start(),
-			A = inets:start(httpd,[{proplist_file,"D:/Develop/Luna/BridgeServer/12001_props.conf"}]),
-			?LOGFORMAT(debug,"Web server started:~p",[A])
-%% 			A = inets:start(httpd,[{port,utils:get_env(serverport)},
-%% 								   {server_name,"bridgeserver"},
-%% 								   {server_root,"serverroot"},
-%% 								   {document_root,"docroot"},
-%% 								   {modules,[mod_log,webserver]},
-%% 								   %%										   {re_write, {"^/BGCModule.asmx", "D:/Develop/Eclipse/Bridgeserver/esi/my_esi/ws"}},
-%% 								   %%										   {alias, {"/BGCModule.asmx", "/esi/my_esi/ws"}},
-%% 								   {erl_script_alias,{"/esi",[my_esi,io]}},
-%% 								   %%										   {log_format, pretty},
-%% 								   {error_log,"errorlog.txt"},
-%% 								   {security_log,"securitylog.txt"},
-%% 								   {transfer_log,"transferlog.txt"},
-%% 								   %%					   {ipfamily,inet},
-%% 								   {allow_from,all},
-%% 								   {bind_address,{192,168,0,100}}]),
-.
