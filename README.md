@@ -136,9 +136,6 @@ wait_for_handler(TableName,Timeout) ->
 
 The above seems to be quite fault tolerant, however, what happens if a process wants to store a value through etshandler and at the same time the handler crashes. The initiating process gets an exception as the gen_server is not found (registered). To overcome even on this wery unlikely situation, there is a wrapper for calling a gen_server that handles the challenge by protecting the gen_server:call with a try catch block and tries to perform the call for a given times with a given wait value by retry. Hopefully the crashed server will be restarted by the supervisor in the timeframe this wrapper tries to call it repeatedly, so for the initial caller, the whole process is hidden.
 
-#When everything goes wrong
-Well, althought the above architecture seems highly available, there are situations when it crashes. Like on an overloaded server a crashed handler or table manager cannot be restarted. In this case, we need to tune the wrapper defaults or consider the situation as a node down event, as if a process cannot reply for a long time, the functionality of that node is not there anyway.
-
 From utils.erl:
 ```Erlang
 call_server(Server,Arguments,Timeout,RetryCount,Sleep,Count) ->
@@ -161,6 +158,9 @@ call_server(Server,Arguments,Timeout,RetryCount,Sleep,Count) ->
 	end
 .
 ```
+
+#When everything goes wrong
+Well, althought the above architecture seems highly available, there are situations when it crashes. Like on an overloaded server a crashed handler or table manager cannot be restarted. In this case, we need to tune the wrapper defaults or consider the situation as a node down event, as if a process cannot reply for a long time, the functionality of that node is not there anyway.
 
 #Let us see if it works
 
