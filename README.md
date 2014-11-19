@@ -23,6 +23,7 @@ Using the above in a smart way we can make sure our ETS tables will always live 
 
 We need a supervised Table Manager gen_server. When it is launched first time, it does practically nothing but starting to wait for incoming requests that could be creating a local ETS table. It's job to check if the table exists and if so, error will be returned. If the table has not been created yet, the Table Manager creates it with the heir option pointing back to itself, then launches a supervised Table Handler gen_server for this new Table and use ets:give_away to give the table ownership to the handler. From now on, all processes can write or delete into the new table through this handler by it's registered name, and read data even direclty with the table id. When all this succeeded, the Table Manager saves the new table's name and Id into a local dets file.
 
+From etsserver.erl
 ```Erlang
 handle_call({new_table,TableName}, _From, State) ->
 	case dets:open_file(?ETSDB) of
@@ -69,12 +70,16 @@ handle_call({new_table,TableName}, _From, State) ->
 ;
 
 ```
-#Table Manager dies.
+#When Table Manager dies.
 
-When the Table Manager accidentaly crashes, the supervisor restarts it with a new Pid. The Table Handlers have the old Pid as to give the ownership back if they die, so when the Table Manager restarts, it opens the local dets table, goes throug the living ETS tables and lets all the Table Handler processes know that the heir Pid changed. All Table Handlers just make a call to change the heir for their table and the show goes on.
+When the Table Manager accidentaly crashes, the supervisor restarts it with a new Pid. The Table Handlers have the old Pid as to give the ownership back if they die, so when the Table Manager restarts, it opens the local dets table, goes through the living ETS tables and lets all the Table Handler processes know that the heir Pid changed. All Table Handlers just make a call to change the heir for their table and the show goes on.
 
-from the dets table the Table Manager 
+From etshandler.erl:
+```Erlang
+handle_call({reheir,TableName,TableId,HeirPid}, _From, State) ->
+	ets:setopts(TableId, {heir,HeirPid,TableName}),
+	{reply,State,State}
+;
+```
 
-2. 
-Description will be continued.
-Code will be uploaded.
+Will be continued......
