@@ -89,6 +89,10 @@ handle_call({reheir,TableName,TableId,HeirPid}, _From, State) ->
 ```
 
 #When Table Handler dies
+
+In this case as we have set up heir, Table Manager gets an {'ETS-TRANSFER',TableId,FromPid,TableName} message, simply waits for the new Handler to be restarted by the supervisor and give the ownership back to the new Handler.
+
+From etssserver.erl:
 ```Erlang
 handle_info({'ETS-TRANSFER',TableId,FromPid,TableName}, State) ->
 	give_away(TableName,TableId),
@@ -127,16 +131,5 @@ wait_for_handler(TableName,Timeout) ->
 	end
 .
 ```
-
-
-In this case as we have set up heir, Table Manager gets an {'ETS-TRANSFER',TableId,FromPid,TableName} message, simply waits for the new Handler to be restarted by the supervisor and give the ownership back to the new Handler.
-
-From etssserver.erl:
-, State) ->
-	?LOGFORMAT(?ETSLOGLEVEL,"Got the table ownership back for table:~p from ~p. Table name is :~p",[TableId,FromPid,TableName]),
-	give_away(TableName,TableId),
-    {noreply, State}
-;
-
 
 Will be continued......
