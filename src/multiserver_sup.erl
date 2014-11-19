@@ -8,7 +8,7 @@
 
 %% -include("multiserver.hrl"). 
 %% -include("../../logger/include/logger.hrl").
--define (LOGFORMAT(_Level,Format,Args),io:format(Format,Args)).
+-include("common.hrl").
 %% ====================================================================
 %% API functions
 %% ====================================================================

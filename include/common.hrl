@@ -1,0 +1,1 @@
+-define (LOGFORMAT(_Level,Format,Args),io:fwrite("~p:" ++ Format ++ "\n",[?MODULE|Args])).

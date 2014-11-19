@@ -5,9 +5,8 @@
 -module(multiserver).
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
-%% -include("../../logger/include/logger.hrl").
-%% -include("multiserver.hrl").
--define (LOGFORMAT(_Level,Format,Args),io:format(Format,Args)).
+
+-include("common.hrl").
 %% ====================================================================
 %% API functions
 %% ====================================================================
@@ -84,18 +83,7 @@ handle_cast(startup, State) ->
 				 permanent,2000,worker,[etsserver]},
 	case supervisor:start_child(multiserver_sup, ETSServer) of
 		{ok, _ServerPId} ->
-  			inets:start(),  %% start from config file multiserver.config
-%			case inets:start(httpd,[{proplist_file,utils:get_env(httpconfigfilename)}]) of
-			case lists:keyfind(httpd, 1, inets:services()) of
-				{httpd,Pid} ->
-					put(httpserverpid, Pid),
-					?LOGFORMAT(debug,"Web server started. Pid:~p",[Pid]);
-					% create ets tables for running
-%% 					etsserver:newtable(?LOCALACTORETS),
-%% 					etsserver:newtable(?NODECONTROLLERETS);
-				WAFIT ->
-					?LOGFORMAT(debug,"Web server error when starting:~p",[WAFIT])
-			end;
+			ok;
 		WAFIT ->
 			?LOGFORMAT(error,"Could not start etsserver:~p\n",[WAFIT])
 	end,

@@ -11,7 +11,7 @@
 %% ====================================================================
 -export([multiserver_start/0]).
 
--define (LOGFORMAT(_Level,Format,Args),io:format(Format,Args)).
+-include("common.hrl").
 
 multiserver_start() -> application:start(multiserver).
 
