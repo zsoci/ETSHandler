@@ -162,6 +162,102 @@ call_server(Server,Arguments,Timeout,RetryCount,Sleep,Count) ->
 .
 ```
 
+#Let us see if it works
+
+To have the supervisors, I put the whole solution into an application called multiserver.
+
+When you launch:```test:all().``` It will start the application and performs the following in etsserver.hrl:
+
+```
+test() ->
+	newtable(ets_test1),
+	newtable(ets_test2),
+	die(),
+	timer:sleep(2000),
+	etshandler:die(ets_test1),
+	timer:sleep(2000),
+	showtables()
+.
+```
+
+The result in erl shell shall be the following:
+```
+multiserver:Got a startup message.
+etsserver:Etsserver init
+etshandler:Got the table ownership for table:ets_test1. It was:undefined
+etshandler:Got the table ownership for table:ets_test2. It was:undefined
+etsserver:etsserver terminated for reason:{badarg,
+                                           [{etsserver,handle_cast,2,
+                                             [{file,
+                                               "d:/Develop/Luna/ETSHandler/src/etsserver.erl"},
+                                              {line,175}]},
+                                            {gen_server,handle_msg,5,
+                                             [{file,"gen_server.erl"},
+                                              {line,604}]},
+                                            {proc_lib,init_p_do_apply,3,
+                                             [{file,"proc_lib.erl"},
+                                              {line,239}]}]}
+etsserver:Etsserver init
+etshandler:ets_test1 got a reheir request to <0.63.0> for table 24597
+
+etshandler:ets_test2 got a reheir request to <0.63.0> for table 28694
+
+
+=ERROR REPORT==== 19-Nov-2014::17:09:33 ===
+** Generic server etsserver terminating 
+** Last message in was {'$gen_cast',die}
+** When Server state == undefined
+** Reason for termination == 
+** {badarg,[{etsserver,handle_cast,2,
+                       [{file,"d:/Develop/Luna/ETSHandler/src/etsserver.erl"},
+                        {line,175}]},
+            {gen_server,handle_msg,5,[{file,"gen_server.erl"},{line,604}]},
+            {proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,239}]}]}
+etshandler:Got a die request
+
+etshandler:etshandler terminated for reason:{badarg,
+                                             [{etshandler,handle_cast,2,
+                                               [{file,
+                                                 "d:/Develop/Luna/ETSHandler/src/etshandler.erl"},
+                                                {line,136}]},
+                                              {gen_server,handle_msg,5,
+                                               [{file,"gen_server.erl"},
+                                                {line,604}]},
+                                              {proc_lib,init_p_do_apply,3,
+                                               [{file,"proc_lib.erl"},
+                                                {line,239}]}]}
+
+
+=ERROR REPORT==== 19-Nov-2014::17:09:35 ===
+** Generic server ets_test1 terminating 
+** Last message in was {'$gen_cast',die}
+** When Server state == 24597
+** Reason for termination == 
+** {badarg,[{etshandler,handle_cast,2,
+                        [{file,"d:/Develop/Luna/ETSHandler/src/etshandler.erl"},
+                         {line,136}]},
+            {gen_server,handle_msg,5,[{file,"gen_server.erl"},{line,604}]},
+            {proc_lib,init_p_do_apply,3,[{file,"proc_lib.erl"},{line,239}]}]}
+etsserver:Got the table ownership back for table:24597 from <0.57.0>. Table name is :ets_test1
+etshandler:Got the table ownership for table:ets_test1. It was:undefined
+etsserver:The following ets tables exist:
+
+etsserver:Table:ets_test1,Id:24597
+
+etsserver:Table:ets_test2,Id:28694
+
+etsserver:Got the table ownership back for table:28694 from <0.61.0>. Table name is :ets_test2
+multiserver:multiserver terminated for reason:shutdown
+
+=INFO REPORT==== 19-Nov-2014::17:09:37 ===
+    application: multiserver
+    exited: stopped
+    type: temporary
+ok
+```
+
+If you analyze the output, you will find out, the code works as planned.
+
 ===========
 Improvements and feedbacks are welcome.
 
