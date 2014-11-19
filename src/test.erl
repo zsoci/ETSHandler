@@ -12,7 +12,6 @@
 -define(MODULES,[etsserver]).
 
 all() ->
-	io:format("hello"),
 	case application:start(multiserver) of
 		ok ->
 			testmodules(?MODULES),
