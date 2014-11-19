@@ -267,5 +267,6 @@ Improvements and feedbacks are welcome.
 
 #Acknowledgements
 Thanks to Steve Vinoski for the base idea and comments on the limitations.
+
 Thanks to Csaba Hoch for the initial idea to use ets tables for dynamically generated process names instead of atoms.
 
