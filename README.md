@@ -19,9 +19,16 @@ There is a way to pass ETS table ownership when a process dies. The option heir 
 
 Using the above in a smart way we can make sure our ETS tables will always live as long as the node is up.
 
+#Definitions
+
+* Table Manager is a gen_server. It's job to create new ETS table, it's handler process and to act as an owner to get the ETS ownership back when a Table Handler crashes.
+* Table Handler is a gen_server. It is responsible to take ownership for a newly created ETS table and perform ETS table operations.
+
 #The method
 
 We need a supervised Table Manager gen_server. When it is launched first time, it does practically nothing but starting to wait for incoming requests that could be creating a local ETS table. It's job to check if the table exists and if so, error will be returned. If the table has not been created yet, the Table Manager creates it with the heir option pointing back to itself, then launches a supervised Table Handler gen_server for this new Table and use ets:give_away to give the table ownership to the handler. From now on, all processes can write or delete into the new table through this handler by it's registered name, and read data even direclty with the table id. When all this succeeded, the Table Manager saves the new table's name and Id into a local dets file.
+
+There is a situation we need to handle additionally. When the Table Manager creates the Table Handler, the Table Handler has not got the ownership yet, so in case some process wants to write to the new table through the Handler it might fail. To solve this, Table Hanldler retries the write with delayed_store, delayed_load and delayed_delete as long as it's does not have the table ownership.
 
 From etsserver.erl
 ```Erlang
@@ -80,5 +87,56 @@ handle_call({reheir,TableName,TableId,HeirPid}, _From, State) ->
 	{reply,State,State}
 ;
 ```
+
+#When Table Handler dies
+```Erlang
+handle_info({'ETS-TRANSFER',TableId,FromPid,TableName}, State) ->
+	give_away(TableName,TableId),
+    {noreply, State}
+;
+....
+....
+give_away(TableName,TId) ->
+	case wait_for_handler(TableName,infinity) of
+		timeout ->
+			{error,timeout};
+		PId when is_pid(PId)->
+			ets:give_away(TId, PId, TableName),
+			{ok,PId};
+		WAFIT ->
+			?LOGFORMAT(error,"Could not wait for ets worker for table:~p\nReason:~p\n",[TableName,WAFIT]),
+			{error,WAFIT}
+	end
+.
+
+wait_for_handler(TableName,Timeout) ->
+	case whereis(TableName) of
+		undefined ->
+			case Timeout of
+				infinity ->
+					timer:sleep(10),
+					wait_for_handler(TableName, Timeout);
+				Time when Time > 0 ->
+					timer:sleep(10),
+					wait_for_handler(TableName, Time - 10);
+				_ ->
+					timeout
+			end;
+		Pid ->
+			Pid
+	end
+.
+```
+
+
+In this case as we have set up heir, Table Manager gets an {'ETS-TRANSFER',TableId,FromPid,TableName} message, simply waits for the new Handler to be restarted by the supervisor and give the ownership back to the new Handler.
+
+From etssserver.erl:
+, State) ->
+	?LOGFORMAT(?ETSLOGLEVEL,"Got the table ownership back for table:~p from ~p. Table name is :~p",[TableId,FromPid,TableName]),
+	give_away(TableName,TableId),
+    {noreply, State}
+;
+
 
 Will be continued......
