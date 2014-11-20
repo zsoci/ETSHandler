@@ -166,7 +166,7 @@ call_server(Server,Arguments,Timeout,RetryCount,Sleep,Count) ->
 #When everything goes wrong
 Well, althought the above architecture seems highly available, there are situations when it crashes. Like on an overloaded server a crashed handler or table manager cannot be restarted. In this case, we need to tune the wrapper defaults or consider the situation as a node down event, as if a process cannot reply for a long time, the functionality of that node is not there anyway.
 
-Another case is when the Table Manager and a Table Handler crashes simultaneously. Well in this case, 'Houston, we have a problem'.
+Another case is when the Table Manager and a Table Handler crashes simultaneously. Well in this case, 'Houston, we have a problem'. This is the point where you shall consider to use dets table instead of ets and paying the price on performance.
 
 #Let us see if it works
 

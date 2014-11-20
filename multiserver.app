@@ -1,5 +1,5 @@
 {application, multiserver,
- [{description,"Main application for testing ETSServer"},
+ [{description,"Application for testing ETSServer"},
   {vsn, "1.0"},
   {modules, [multiserver_app,multiserver_sup]},
   {registered, [multiserver_app]},
