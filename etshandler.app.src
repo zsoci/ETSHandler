@@ -1,0 +1,11 @@
+{application, etshandler,
+ [{description,"Application for testing ETSServer"},
+  {vsn, "1.0"},
+  {modules, [etsmanager_app,etsmanager_sup]},
+  {registered, [etsmanager_app]},
+  {applications,[kernel,stdlib]},
+  {mod,{etsmanager_app,[]}},
+  {start_phases,[]}
+ ]
+}.
+

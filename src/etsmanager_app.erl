@@ -2,18 +2,18 @@
 %% @doc @todo Add description to bridgeserver_app.
 
 
--module(multiserver_app).
+-module(etsmanager_app).
 -behaviour(application).
 -export([start/2, stop/1]).
 
 %% ====================================================================
 %% API functions
 %% ====================================================================
--export([multiserver_start/0]).
+-export([etsmanager_start/0]).
 
 -include("common.hrl").
 
-multiserver_start() -> application:start(multiserver).
+etsmanager_start() -> application:start(etshandler).
 
 %% ====================================================================
 %% Behavioural functions
@@ -29,7 +29,7 @@ multiserver_start() -> application:start(multiserver).
 %% ====================================================================
 start(_Type, StartArgs) ->
 	etsserver:initdb(),
-	case multiserver_sup:start_link(StartArgs) of
+	case etsmanager_sup:start_link(StartArgs) of
 		{ok, Pid} ->
 			{ok, Pid};
 		Error ->

@@ -2,12 +2,10 @@
 %% @doc @todo Add description to bridgeserver_sup.
 
 
--module(multiserver_sup).
+-module(etsmanager_sup).
 -behaviour(supervisor).
 -export([init/1]).
 
-%% -include("multiserver.hrl"). 
-%% -include("../../logger/include/logger.hrl").
 -include("common.hrl").
 %% ====================================================================
 %% API functions
@@ -51,8 +49,8 @@ start_link(Args) ->
 	Modules :: [module()] | dynamic.
 %% ====================================================================
 init([]) ->
-	MainServer = {multiserver,{multiserver,start_link,[]},
-				  permanent,2000,worker,[multiserver]},
+	MainServer = {etsmanager,{etsmanager,start_link,[]},
+				  permanent,2000,worker,[etsmanager]},
 	{ok,{{one_for_one,3,10}, [MainServer]}}
 .
 

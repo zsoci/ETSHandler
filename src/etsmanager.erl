@@ -2,7 +2,7 @@
 %% @doc @todo Add description to multiserver.
 
 
--module(multiserver).
+-module(etsmanager).
 -behaviour(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
@@ -81,7 +81,7 @@ handle_cast(startup, State) ->
  	?LOGFORMAT(debug,"Got a startup message.",[]),
 	ETSServer = {etsserver,{etsserver,start_link,[]},
 				 permanent,2000,worker,[etsserver]},
-	case supervisor:start_child(multiserver_sup, ETSServer) of
+	case supervisor:start_child(etsmanager_sup, ETSServer) of
 		{ok, _ServerPId} ->
 			ok;
 		WAFIT ->
