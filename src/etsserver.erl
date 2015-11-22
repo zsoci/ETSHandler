@@ -99,7 +99,7 @@ handle_call({new_table,TableName}, _From, State) ->
 					TId = ets:new(TableName, [bag,{heir,self(),TableName}]),
 					ETSWorker = {TableName,{etshandler,start_link,[TableName]},
 					  			 permanent,2000,worker,[etshandler]},
-					case supervisor:start_child(multiserver_sup, ETSWorker) of
+					case supervisor:start_child(etsmanager_sup, ETSWorker) of
 						{ok, WorkerPId} ->
 							case give_away(TableName,TId) of
 								{ok, PId} ->
