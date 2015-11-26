@@ -12,7 +12,7 @@
 %% API functions
 %% ====================================================================
 -export([start/1,stop/1,getid/1,store/2,start_link/1,reheir/3,die/1,
-		 load/2,delete/2]).
+		 load/2,delete/2,deleteifmatch/3]).
 
 start(TableName) -> start_link(TableName).
 stop(TableName) -> gen_server:call(TableName,stop,infinity).
