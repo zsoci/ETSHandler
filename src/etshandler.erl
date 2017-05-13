@@ -12,7 +12,7 @@
 %% API functions
 %% ====================================================================
 -export([start/1,stop/1,getid/1,store/2,start_link/1,reheir/3,die/1,
-		 load/2,delete/2]).
+		 load/2,delete/2,deleteifmatch/3]).
 
 start(TableName) -> start_link(TableName).
 stop(TableName) -> gen_server:call(TableName,stop,infinity).
@@ -22,10 +22,12 @@ start_link(TableName) -> gen_server:start_link({local,TableName},?MODULE,[],[]).
 store(TableName,Object) -> utils:call_server(TableName, {store,TableName,Object}).
 load(TableName,Key) -> utils:call_server(TableName, {load,TableName,Key}).
 delete(TableName,Key) -> utils:call_server(TableName, {delete,TableName,Key}).
+deleteifmatch(TableName,Key,Value) -> utils:call_server(TableName, {deleteifmatch,TableName,Key,Value}).
 die(TableName) -> gen_server:cast(TableName, die).
 delayed_store(TableName,Object,From) -> gen_server:cast(TableName, {delayed_store,TableName,Object,From}).
 delayed_load(TableName,Key,From) -> gen_server:cast(TableName, {delayed_load,TableName,Key,From}).
 delayed_delete(TableName,Key,From) -> gen_server:cast(TableName, {delayed_delete,TableName,Key,From}).
+delayed_deleteifmatch(TableName,Key,Value,From) -> gen_server:cast(TableName, {delayed_deleteifmatch,TableName,Key,Value,From}).
 
 %% ====================================================================
 %% Behavioural functions 
@@ -111,6 +113,24 @@ handle_call({delete,TableName,Key}, From, State) ->
 			{reply, Reply, State}
 	end
 ;
+
+handle_call({deleteifmatch,TableName,Key,Value}, From, State) ->
+    case State of
+        undefined ->
+            delayed_deleteifmatch(TableName,Key,Value,From),
+            {noreply,State};
+        TId ->
+            case ets:lookup(TId, Key) of
+                [] ->
+                    {reply,notfound,State};
+                [StoredValue] when StoredValue == Value ->
+                    {reply,ets:delete(TId, Key),State};
+                [StoredValue] ->
+                    ?LOGFORMAT(warning,"Value mismatch when deleting ets object:~p /= ~p",[StoredValue,Value]),
+                    {reply, mismatch, State}
+            end
+    end
+;
 			
 handle_call(Request, From, State) ->
 	?LOGFORMAT(error,"~p got an unmached request from PID:~p. Request=~p\n",[State,From,Request]),
@@ -168,6 +188,24 @@ handle_cast({delayed_delete,TableName,Key,From},State) ->
 			gen_server:reply(From, Reply)
 	end,
 	{noreply, State}
+;
+
+handle_cast({delayed_deleteifmatch,TableName,Key,Value,From},State) ->
+    case State of
+        undefined ->
+            delayed_deleteifmatch(TableName,Key,Value,From);
+        TId ->
+            case ets:lookup(TId, Key) of
+                [] ->
+                    gen_server:reply(From,notfound);
+                [StoredValue] when StoredValue == Value ->
+                    gen_server:reply(From,ets:delete(TId, Key));
+                [StoredValue] ->
+                    ?LOGFORMAT(warning,"Value mismatch when deleting ets object:~p /= ~p",[StoredValue,Value]),
+                    gen_server:reply(From, mismatch)
+            end
+    end,
+    {noreply, State}
 ;
 
 handle_cast(Msg, State) ->
